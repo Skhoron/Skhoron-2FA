@@ -1,0 +1,69 @@
+# SPDX-License-Identifier: Apache-2.0
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Токен только на чтение. В workflow нет секретов и нет ключа подписи.
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Python с cryptography
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install "cryptography>=46"
+      - name: Все проверки ядра
+        run: PATH="$PWD/.venv/bin:$PATH" bash tools/verify.sh
+
+  apk:
+    needs: core-tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"   # минимум и версия по умолчанию для AGP 8.7
+      - name: Android SDK (платформа 35, build-tools 34.0.0 - по умолчанию для AGP 8.7)
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ -x "$SDKM" ]; then
+            "$SDKM" --licenses < <(yes) > /dev/null
+            "$SDKM" "platforms;android-35" "build-tools;34.0.0"
+          else
+            echo "sdkmanager не найден, SDK скачает Gradle"
+          fi
+      - name: Сборка неподписанного release APK
+        working-directory: android
+        run: gradle --no-daemon :app:assembleRelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Skhoron-2FA-unsigned
+          path: android/app/build/outputs/apk/release/*.apk
+          retention-days: 7
+          if-no-files-found: error
