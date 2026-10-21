@@ -1,0 +1,44 @@
+{
+ "entries": [
+  {
+   "type": "totp",
+   "issuer": "Example",
+   "account": "alice@example.com",
+   "secret": "AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYU",
+   "algorithm": "SHA1",
+   "digits": 6,
+   "period": 30,
+   "counter": 0
+  },
+  {
+   "type": "totp",
+   "issuer": "ACME",
+   "account": "bob",
+   "secret": "GIZTINJWG44DSOR3HQ6T4P2AIFBEGRCFIZDUQSKKJNGE2TSPKBIQ",
+   "algorithm": "SHA256",
+   "digits": 8,
+   "period": 60,
+   "counter": 0
+  },
+  {
+   "type": "hotp",
+   "issuer": "Пример \"кавычки\" \\ слэш",
+   "account": "иван\tтаб",
+   "secret": "BEEQSCIJBEEQSCIJBEEQSCIJBEEQSCIJ",
+   "algorithm": "SHA512",
+   "digits": 7,
+   "period": 30,
+   "counter": 4
+  },
+  {
+   "type": "totp",
+   "issuer": "Control",
+   "account": "line1\nline2\u0001",
+   "secret": "CEIRCEIRCEIRCEIR",
+   "algorithm": "SHA1",
+   "digits": 6,
+   "period": 15,
+   "counter": 0
+  }
+ ]
+}
