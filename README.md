@@ -1,4 +1,4 @@
-Skhoron-2FA
+# Skhoron-2FA
 
 A fully local TOTP authenticator for Android. No server, no account, and no "INTERNET" permission in the manifest. After being added, the secret remains only in Android Keystore as an HMAC key.
 
